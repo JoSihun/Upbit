@@ -18,7 +18,7 @@ import os, time
 import requests
 import xlwings
 
-FILENAME = '업비트투자전략.xlsm'
+FILENAME = '업비트투자전략1.xlsm'
 # FILENAME = '업비트투자전략TEST.xlsm'
 
 

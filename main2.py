@@ -67,7 +67,7 @@ if FILENAME in os.listdir():
     worksheet2 = workbook.sheets[today]         # 현재오늘날짜 시트읽기
 
     # 오늘날짜시트가 없다면 try문을 써야할 듯 return값이 None이 아님 그냥 throw남
-    # worksheet3 = workbook.sheets['투자전략1'].copy()
+    # worksheet3 = workbook.sheets['투자전략'].copy()
     # worksheet3.name = today
     # print(workbook.sheets['없지롱'])
 
