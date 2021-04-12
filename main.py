@@ -26,7 +26,7 @@ FILENAME = '업비트투자전략1.xlsm'
 url = 'https://api.upbit.com/v1/market/all'
 response = requests.get(url)
 markets_all = response.json()
-print('[' + response.headers['Date'] + '] ' + url)
+print(f'[' + response.headers['Date'] + f'] {url}')
 
 markets_btc = []
 markets_krw = []
@@ -47,7 +47,7 @@ for item in markets_krw:
     response = requests.get(url)
     ticker = response.json()
     time.sleep(0.1)
-    print('[' + response.headers['Date'] + '] ' + url)
+    print(f'[' + response.headers['Date'] + f'] {url}')
 
     coin_code = item['market']  # 종목코드
     coin_name = item['korean_name']  # 코인이름
