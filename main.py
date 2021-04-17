@@ -2,7 +2,7 @@
 # https://xlmaster.tistory.com/15
 #
 # [VBA] 업비트 Open API > 시세 Ticker 조회 > 현재가 정보
-# https://xlmaster.tistory.com/15
+# https://xlmaster.tistory.com/21
 
 # xlwings workbook 사용법
 # 1) workbook = xlwings.Book()
