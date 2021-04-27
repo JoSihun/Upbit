@@ -1,13 +1,11 @@
 import time
 import xlwings
 
+# year = time.localtime().tm_year
+# month = time.localtime().tm_mon
+# day = time.localtime().tm_mday
 
 FILENAME = '업비트투자전략TEST.xlsm'
 if __name__ == '__main__':
-    workbook = xlwings.Book(FILENAME)
-    worksheet1 = workbook.sheets['현재가테이블']  # 현재가테이블 시트읽기
-    worksheet2 = workbook.sheets['종목선정']  # 현재오늘날짜 시트읽기
-
-
-    worksheet3 = workbook.sheets['투자전략'].copy()
-    worksheet3.name = time.strftime('%Y.%m.%d')
+    dictA = {'a':1, 'b':2, 'c':3}
+    print(dictA.values())
