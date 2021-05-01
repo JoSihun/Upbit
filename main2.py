@@ -139,7 +139,7 @@ def excel_edit(PRICES):
         for col, data in enumerate(item.values()):
             worksheet2.range(row + 2, col + 1).value = data
 
-
+    print(f'Updating WorkSheet ' + time.strftime('%Y.%m.%d') + f'...')
     # Total Top20
     for row, item in enumerate(PRICES[0:20]):
         worksheet1.range(f'O{6+row}').value = item['코인이름']
@@ -221,3 +221,6 @@ if __name__ == '__main__':
     print(f'처리시간: {end-start:.3f}sec')
     # 처리시간이 너무 김, 최적화 필요, 적절한 print문 필요
     # 월말정산필요
+    # VBA n차 현재가 초기화 MsgBox 추가필요
+    # 상단 종합 평균 상승률 조건부서식 수정필요
+    # 데이터 상승률 0일때 조건부서식 처리방법 필요
