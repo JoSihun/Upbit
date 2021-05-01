@@ -30,7 +30,6 @@ def get_time_str():
     return str_now
 
 def get_tickers(option='KRW'):
-    now = get_time_str()
     url = 'https://api.upbit.com/v1/market/all'
     response = requests.get(url)
     markets_all = response.json()
@@ -39,7 +38,7 @@ def get_tickers(option='KRW'):
     TICKERS_BTC = []
     TICKERS_KRW = []
     TICKERS_USDT = []
-    print(f'{now} {url}\n')
+    print(f'{get_time_str()} {url}\n')
     for item in markets_all:
         if item['market'].startswith('BTC'):
             TICKERS_BTC.append(item)
@@ -58,13 +57,12 @@ def get_tickers(option='KRW'):
         return TICKERS_BTC, TICKERS_KRW, TICKERS_USDT
 
 def get_prices(TICKERS):
-    now = get_time_str()
     url = 'https://api.upbit.com/v1/ticker?markets='
     print(f'Obtaining Trade Informations...')
 
     PRICES = []
     for TICKER in TICKERS:
-        print(f'{now} {url}' + TICKER['market'])
+        print(f'{get_time_str()} {url}' + TICKER['market'])
         response = requests.get(url + TICKER['market'])
         TICK = response.json()
         time.sleep(0.1)
@@ -80,24 +78,12 @@ def get_prices(TICKERS):
                        '전일대비': change_rate,
                        '거래량': trade_volume})
 
+    print(f'Sorting Trade Informations...')
     return sorted(PRICES, key=lambda PRICE: PRICE['전일대비'], reverse=True)
 
 def excel_edit(PRICES):
-    UPDATE_TODAY = False
-
-    # Excel File Load
-    workbook = xlwings.Book(FILENAME)           # Excel 파일읽기
-    worksheet1 = workbook.sheets['종목선정']     # 종목선정 시트읽기
-    worksheet2 = workbook.sheets['현재가테이블']  # 현재가테이블 시트읽기
-
-    try:
-        worksheet3 = workbook.sheets[time.strftime('%Y.%m.%d')]
-    except:
-        UPDATE_TODAY = True
-        worksheet3 = workbook.sheets['투자전략'].copy()
-        worksheet3.name = time.strftime('%Y.%m.%d')
-
-    # Recommend Marcket Information Update
+    # Dataset for Excel Input
+    print(f'Resorting Trade Informations for Inputting Excel...\n')
     under100 = []
     under1000 = []
     for item in PRICES:
@@ -106,12 +92,32 @@ def excel_edit(PRICES):
         if 100 <= item['현재가'] < 1000:
             under1000.append(item)
 
+    # Excel File Load
+    print(f'Loading WorkBook \'{FILENAME}\'...')
+    workbook = xlwings.Book(FILENAME)           # Excel 파일읽기
+    print(f'Loading WorkSheet \'종목선정\'...')
+    worksheet1 = workbook.sheets['종목선정']     # 종목선정 시트읽기
+    print(f'Loading WorkSheet \'현재가테이블\'...')
+    worksheet2 = workbook.sheets['현재가테이블']  # 현재가테이블 시트읽기
+    try:
+        UPDATE_TODAY = False
+        print(f'Loading WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'...')
+        worksheet3 = workbook.sheets[time.strftime('%Y.%m.%d')]
+    except:
+        UPDATE_TODAY = True
+        print(f'WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'Does Not Exists!')
+        print(f'Creating WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'...\n')
+        worksheet3 = workbook.sheets['투자전략'].copy()
+        worksheet3.name = time.strftime('%Y.%m.%d')
+
+    # Recommend Marcket Information Update
+    print(f'Initialize Date Information...')
     worksheet1.range('H3').value = time.strftime('%Y.%m.%d')
     worksheet2.range('H3').value = time.strftime('%Y.%m.%d')
     worksheet3.range('G1').value = time.strftime('%Y-%m-%d')
 
+    print(f'Initialize Data Information...\n')
     worksheet1.range('O6:O25').value = ''  # 데이터값 초기화
-
     worksheet1.range('G31:G50').value = ''  # 데이터값 초기화
     worksheet1.range('K31:K50').value = ''  # 데이터값 초기화
     worksheet1.range('O31:O50').value = ''  # 데이터값 초기화
@@ -120,16 +126,19 @@ def excel_edit(PRICES):
     worksheet1.range('K56:K75').value = ''  # 데이터값 초기화
     worksheet1.range('O56:O75').value = ''  # 데이터값 초기화
 
+    print(f'Updating WorkSheet 종목선정...')
     worksheet1.range('A2:E200').value = ''      # 데이터값 초기화
     for row, item in enumerate(PRICES):
         for col, data in enumerate(item.values()):
             worksheet1.range(row + 2, col + 1).value = data
 
     # Present Price Information Update
+    print(f'Updating WorkSheet 현재가테이블...')
     worksheet2.range('A2:E200').value = ''      # 데이터값 초기화
     for row, item in enumerate(PRICES):
         for col, data in enumerate(item.values()):
             worksheet2.range(row + 2, col + 1).value = data
+
 
     # Total Top20
     for row, item in enumerate(PRICES[0:20]):
@@ -195,8 +204,6 @@ NFT_COIN = {'쎄타토큰':'KRW-THETA', '엔진코인':'KRW-ENJ', '플로우':'K
 DEPHI_COIN = {'트론':'KRW-TRX', '폴카닷':'KRW-DOT', '체인링크':'KRW-LINK',
               '스와이프':'KRW-SXP', '저스트':'KRW-JST', '제로엑스':'KRW-ZRX'}
 
-# FILENAME = '업비트투자전략.xlsm'
-# FILENAME = '업비트투자전략TEST.xlsm'
 STANDARD = 'Upbit투자분석 '+time.strftime('%Y')+'년 XX월.xlsm'
 FILENAME = 'Upbit투자분석 '+time.strftime('%Y')+'년 '+time.strftime('%m')+'월.xlsm'
 
