@@ -110,6 +110,7 @@ def excel_edit(PRICES):
         worksheet3 = workbook.sheets['투자전략'].copy()
         worksheet3.name = time.strftime('%Y.%m.%d')
 
+
     # Recommend Marcket Information Update
     print(f'Initialize Date Information...')
     worksheet1.range('H3').value = time.strftime('%Y.%m.%d')
@@ -211,6 +212,8 @@ if __name__ == '__main__':
     start = time.time()
     if not FILENAME in os.listdir():                        # 파일이 없으면
         shutil.copy(STANDARD, FILENAME)    # 양식 파일 복사
+        workbook = xlwings.Book(FILENAME)  # Excel 파일읽기
+        workbook.sheets['투자전략'].range('G1').value = time.strftime('%Y-%m-%d')
 
     TICKERS_KRW = get_tickers('KRW')
     PRICES_KRW = get_prices(TICKERS_KRW)
