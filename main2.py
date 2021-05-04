@@ -30,15 +30,16 @@ def get_time_str():
     return str_now
 
 def get_tickers(option='KRW'):
+    timeHeader = get_time_str()
     url = 'https://api.upbit.com/v1/market/all'
     response = requests.get(url)
     markets_all = response.json()
-    print(f'Obtaining All Market Informations...')
+    print(f'{timeHeader} Obtaining All Market Informations...')
 
     TICKERS_BTC = []
     TICKERS_KRW = []
     TICKERS_USDT = []
-    print(f'{get_time_str()} {url}\n')
+    print(f'{timeHeader} {url}\n')
     for item in markets_all:
         if item['market'].startswith('BTC'):
             TICKERS_BTC.append(item)
@@ -57,12 +58,13 @@ def get_tickers(option='KRW'):
         return TICKERS_BTC, TICKERS_KRW, TICKERS_USDT
 
 def get_prices(TICKERS):
+    timeHeader = get_time_str()
     url = 'https://api.upbit.com/v1/ticker?markets='
-    print(f'Obtaining Trade Informations...')
+    print(f'{get_time_str()} Obtaining Trade Informations...')
 
     PRICES = []
     for TICKER in TICKERS:
-        print(f'{get_time_str()} {url}' + TICKER['market'])
+        print(f'{timeHeader} {url}' + TICKER['market'])
         response = requests.get(url + TICKER['market'])
         TICK = response.json()
         time.sleep(0.1)
@@ -78,12 +80,14 @@ def get_prices(TICKERS):
                        '전일대비': change_rate,
                        '거래량': trade_volume})
 
-    print(f'Sorting Trade Informations...')
+    print(f'{timeHeader} Sorting Trade Informations...')
     return sorted(PRICES, key=lambda PRICE: PRICE['전일대비'], reverse=True)
 
 def excel_edit(PRICES):
+    timeHeader = get_time_str()
+
     # Dataset for Excel Input
-    print(f'Resorting Trade Informations for Inputting Excel...\n')
+    print(f'{timeHeader} Resorting Trade Informations for Inputting Excel...\n')
     under100 = []
     under1000 = []
     for item in PRICES:
@@ -93,31 +97,31 @@ def excel_edit(PRICES):
             under1000.append(item)
 
     # Excel File Load
-    print(f'Loading WorkBook \'{FILENAME}\'...')
+    print(f'{timeHeader} Loading WorkBook \'{FILENAME}\'...')
     workbook = xlwings.Book(FILENAME)           # Excel 파일읽기
-    print(f'Loading WorkSheet \'종목선정\'...')
+    print(f'{timeHeader} Loading WorkSheet \'종목선정\'...')
     worksheet1 = workbook.sheets['종목선정']     # 종목선정 시트읽기
-    print(f'Loading WorkSheet \'현재가테이블\'...')
+    print(f'{timeHeader} Loading WorkSheet \'현재가테이블\'...')
     worksheet2 = workbook.sheets['현재가테이블']  # 현재가테이블 시트읽기
     try:
         UPDATE_TODAY = False
-        print(f'Loading WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'...')
+        print(f'{timeHeader} Loading WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'...\n')
         worksheet3 = workbook.sheets[time.strftime('%Y.%m.%d')]
     except:
         UPDATE_TODAY = True
-        print(f'WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'Does Not Exists!')
-        print(f'Creating WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'...\n')
+        print(f'{timeHeader} WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'Does Not Exists!')
+        print(f'{timeHeader} Creating WorkSheet \'' + time.strftime('%Y.%m.%d') + f'\'...\n')
         worksheet3 = workbook.sheets['투자전략'].copy()
         worksheet3.name = time.strftime('%Y.%m.%d')
 
 
     # Recommend Marcket Information Update
-    print(f'Initialize Date Information...')
+    print(f'{timeHeader} Initialize Date Information...')
     worksheet1.range('H3').value = time.strftime('%Y.%m.%d')
     worksheet2.range('H3').value = time.strftime('%Y.%m.%d')
     worksheet3.range('G1').value = time.strftime('%Y-%m-%d')
 
-    print(f'Initialize Data Information...\n')
+    print(f'{timeHeader} Initialize Data Information...\n')
     worksheet1.range('O6:O25').value = ''  # 데이터값 초기화
     worksheet1.range('G31:G50').value = ''  # 데이터값 초기화
     worksheet1.range('K31:K50').value = ''  # 데이터값 초기화
@@ -127,19 +131,28 @@ def excel_edit(PRICES):
     worksheet1.range('K56:K75').value = ''  # 데이터값 초기화
     worksheet1.range('O56:O75').value = ''  # 데이터값 초기화
 
-    print(f'Updating WorkSheet 종목선정...')
-    worksheet1.range('A2:E200').value = ''      # 데이터값 초기화
-    for row, item in enumerate(PRICES):
-        for col, data in enumerate(item.values()):
-            worksheet1.range(row + 2, col + 1).value = data
+    print(f'{timeHeader} Updating WorkSheet 종목선정...')
+    datas = [list(data.values()) for data in PRICES]            # 효율적, Same as below!
+    worksheet1.range('A2:E200').value = ''                      # 효율적, 데이터값 초기화
+    worksheet1.range('A2:E200').value = datas                   # 효울적, Same as below!
+
+    # for row, item in enumerate(PRICES):                       # 비효율, Same as above!
+    #     for col, data in enumerate(item.values()):            # 비효율, Same as above!
+    #         worksheet1.range(row + 2, col + 1).value = data   # 비효율, Same as above!
 
     # Present Price Information Update
-    print(f'Updating WorkSheet 현재가테이블...')
-    worksheet2.range('A2:E200').value = ''      # 데이터값 초기화
-    for row, item in enumerate(PRICES):
-        for col, data in enumerate(item.values()):
-            worksheet2.range(row + 2, col + 1).value = data
+    print(f'{timeHeader} Updating WorkSheet 현재가테이블...')
+    datas = [list(data.values()) for data in PRICES]            # 효율적, Same as below!
+    worksheet2.range('A2:E200').value = ''                      # 효율적, 데이터값 초기화
+    worksheet2.range('A2:E200').value = datas                   # 효울적, Same as below!
 
+    # for row, item in enumerate(PRICES):                       # 비효율, Same as above!
+    #     for col, data in enumerate(item.values()):            # 비효율, Same as above!
+    #         worksheet2.range(row + 2, col + 1).value = data   # 비효율, Same as above!
+
+    #################################### 여기부터 처리속도가 느려짐 ####################################
+    #################################### 여기부터 처리속도가 느려짐 ####################################
+    #################################### 여기부터 처리속도가 느려짐 ####################################
     print(f'Updating WorkSheet ' + time.strftime('%Y.%m.%d') + f'...')
     # Total Top20
     for row, item in enumerate(PRICES[0:20]):
@@ -223,7 +236,3 @@ if __name__ == '__main__':
     end = time.time()
     print(f'처리시간: {end-start:.3f}sec')
     # 처리시간이 너무 김, 최적화 필요, 적절한 print문 필요
-    # 월말정산필요
-    # VBA n차 현재가 초기화 MsgBox 추가필요
-    # 상단 종합 평균 상승률 조건부서식 수정필요
-    # 데이터 상승률 0일때 조건부서식 처리방법 필요

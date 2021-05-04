@@ -8,4 +8,5 @@ import xlwings
 FILENAME = '업비트투자전략TEST.xlsm'
 if __name__ == '__main__':
     dictA = {'a':1, 'b':2, 'c':3}
-    print(dictA.values())
+    values = list(dictA.values())
+    print(values)
