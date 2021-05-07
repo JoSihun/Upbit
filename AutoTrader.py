@@ -67,11 +67,10 @@ def get_prices(TICKERS):
     print(f'{timeHeader} Sorting Trade Informations...')
     return sorted(PRICES, key=lambda PRICE: PRICE['전일대비'], reverse=True)
 
-def buyingTop20():
+def buyingTop20(PRICES):
     # 매수주문(매수가, 수량): 수량=매수금액/현재가 소수점아래 8자리 => .8f
-    tickers = get_tickers('KRW')
-    prices = get_prices(tickers)
-    for price in prices[:20]:
+    for price in PRICES[:20]:
+        time.sleep(0.25)
         print('[매수주문]', end=' ')
         print('{}: {:<12}'.format('종목코드', price['종목코드']), end='')
         print('{}: {:>6.2f}'.format('전일대비', price['전일대비'] * 100), end='%   ')
@@ -86,10 +85,15 @@ def buyingTop20():
         #################################### 실제로 매수체결되는 코드이므로 각별한 주의요구 ####################################
         #################################### 실제로 매수체결되는 코드이므로 각별한 주의요구 ####################################
 
-def sellingTop20():
-    sell_list = []
+def sellingTop20(PRICES):
+    if len(upbit.get_balances()) == 2:
+        print('[매도주문] 현재 보유중인 종목이 없으므로 매도할 수 있는 종목이 없습니다!')
+        return 0
+
     # 현재보유종목 전량매도
+    sell_list = []
     for balance in upbit.get_balances():
+        time.sleep(0.25)
         if balance['currency'] == 'KRW': continue
         sell_list.append({'종목코드': 'KRW-'+balance['currency']})
         #################################### 실제로 매도체결되는 코드이므로 각별한 주의요구 ####################################
@@ -101,7 +105,6 @@ def sellingTop20():
         #################################### 실제로 매도체결되는 코드이므로 각별한 주의요구 ####################################
 
     sold_list = []
-    PRICES = get_prices(get_tickers())
     for price in PRICES:
         for sell in sell_list:
             if price['종목코드'] == sell['종목코드']:
@@ -111,25 +114,58 @@ def sellingTop20():
                                   '전일대비': price['전일대비'],
                                   '거래량': price['거래량']})
 
-    for price in sold_list[:20]:
+    for price in sold_list:
         print('[매도주문]', end=' ')
         print('{}: {:<12}'.format('종목코드', price['종목코드']), end='')
         print('{}: {:>6.2f}'.format('전일대비', price['전일대비'] * 100), end='%   ')
         print('{}: {:>8,}'.format('매도가', int(price['현재가'])), end='원   ')
         print('{}: {:>18,.2f}'.format('거래량', price['거래량']), end='건   ')
         print('{}: {!r:15s}'.format('한글코인명', price['코인이름']))
-        # upbit.buy_market_order(price['종목코드'], PERCHASE_PRICE)
+
+def get_myholdings(PRICES):
+    if len(upbit.get_balances()) == 2:
+        print('[보유종목] 현재 보유중인 종목이 없습니다!')
+        return 0
+
+    # 현재보유종목
+    hold_list = []
+    for balance in upbit.get_balances():
+        if balance['currency'] == 'KRW': continue
+        hold_list.append({'종목코드': 'KRW-'+balance['currency']})
+
+    result = []
+    for price in PRICES:
+        for hold in hold_list:
+            if price['종목코드'] == hold['종목코드']:
+                result.append({'종목코드': price['종목코드'],
+                                  '코인이름': price['코인이름'],
+                                  '현재가': price['현재가'],
+                                  '전일대비': price['전일대비'],
+                                  '거래량': price['거래량']})
+
+    for price in result:
+        print('[보유종목]', end=' ')
+        print('{}: {:<12}'.format('종목코드', price['종목코드']), end='')
+        print('{}: {:>6.2f}'.format('전일대비', price['전일대비'] * 100), end='%   ')
+        print('{}: {:>8,}'.format('현재가', int(price['현재가'])), end='원   ')
+        print('{}: {:>18,.2f}'.format('거래량', price['거래량']), end='건   ')
+        print('{}: {!r:15s}'.format('한글코인명', price['코인이름']))
 
 secret_key = 'PSrJSoS0xeQE3QlJ45pBxSSwVyZxXXRGafiBr6ZM'
 access_key = 'MLamU33sStiOwNGAlkxT3HYQVZfCJyaxIWakLiIm'
 upbit = pyupbit.Upbit(access_key, secret_key)
 
-PERCHASE_PRICE = 150000
+
+#PERCHASE_PRICE = 10000      # TEST용 금액
+PERCHASE_PRICE = 150000    # 실제거래금액
 if __name__ == "__main__":
     option = input('옵션입력(매수: buy, 매도: sell): ')
+    prices = get_prices(get_tickers('KRW'))
     if option == 'buy':
-        buyingTop20()         # 매수주문
+        buyingTop20(prices)         # 매수주문
     elif option == 'sell':
-        sellingTop20()        # 매도주문
+        sellingTop20(prices)        # 매도주문
 
+    print(f'==========================================================================================================')
+    get_myholdings(prices)
     print(f'보유 KRW {int(upbit.get_balance("KRW")):,}원')
