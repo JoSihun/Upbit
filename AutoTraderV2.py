@@ -1,59 +1,60 @@
-import os, shutil, time
+# -*- coding: utf-8 -*-
+
+import os, sys, shutil, time
+import numpy as np
+import pandas as pd
 import requests, pyupbit
+
 
 class Coin:
     num_coins = 0
 
-    def __init__(self, market_code, name_kor, name_eng, ):
-        self.market_code = market_code  # 종목코드
+    def __init__(self, market_code, name_kor, name_eng):
+        self.market_code = market_code      # 종목코드
         self.name_kor = name_kor            # 한글이름
         self.name_eng = name_eng            # 영어이름
 
-        url = 'https://api.upbit.com/v1/ticker?markets=' + self.market_code
-        response = requests.get(url).json()
-        self.purchase_price = response[0]['trade_price']
-        self.change_rate = response[0]['signed_change_rate']
-        self.trade_volume = response[0]['acc_trade_volume']
+        url = f'https://api.upbit.com/v1/ticker?markets={self.market_code}'
+        response = requests.get(url).json()[0]
+        self.price_now = response['trade_price']    # 현재가
+        self.max_price = response['trade_price']    # 최고가
+        self.min_price = response['trade_price']    # 최저가
+        self.price_buy = response['trade_price']    # 매수가
 
-        self.max_price = response[0]['trade_price']
-        self.min_price = response[0]['trade_price']
-        self.current_price = response[0]['trade_price']
-        self.increase_rate = 0
+        self.rate = response['signed_change_rate']  # 전일대비
+        self.volume = response['acc_trade_volume']  # 거래량
+        self.profit = 0                             # 평가손익
         Coin.num_coins += 1
 
     def update(self):
-        url = 'https://api.upbit.com/v1/ticker?markets=' + self.market_code
-        response = requests.get(url).json()
-        self.change_rate = response[0]['signed_change_rate']
-        self.trade_volume = response[0]['acc_trade_volume']
+        url = f'https://api.upbit.com/v1/ticker?markets={self.market_code}'
+        response = requests.get(url).json()[0]
+        self.rate = response['signed_change_rate']  # 전일대비
+        self.volume = response['acc_trade_volume']  # 거래량
 
-        self.current_price = response[0]['trade_price']
-        if self.max_price < self.current_price:
-            self.max_price = self.current_price
-        if self.min_price > self.current_price:
-            self.min_price = self.current_price
-        self.increase_rate = self.current_price / self.purchase_price - 1
+        self.price_now = response['trade_price']    # 현재가
+        if self.max_price < self.price_now:
+            self.max_price = self.price_now
+        if self.min_price > self.price_now:
+            self.min_price = self.price_now
+        self.profit = self.price_now / self.price_buy - 1
 
     def buy(self):
-        if self.current_price > self.min_price * 1.05:
+        if self.price_now > self.min_price * 1.05:
             pass
 
     def sell(self):
-        if self.current_price < self.max_price * 0.95:
+        if self.price_now < self.max_price * 0.95:
             pass
 
     def view(self):
-        print('[보유정보]', end=' ')
-        print('{}: {:<12}'.format('종목코드', self.market_code), end='')
-        print('{}: {:>6.2f}'.format('전일대비', self.change_rate * 100), end='%   ')
-        print('{}: {:>8,}'.format('최고가', self.max_price), end='원   ')
-        print('{}: {:>8,}'.format('최저가', self.min_price), end='원   ')
-        print('{}: {:>8,}'.format('매수가', self.purchase_price), end='원   ')
-        print('{}: {:>8,}'.format('현재가', self.current_price), end='원   ')
-        print('{}: {:>6.2f}'.format('평가손익', self.increase_rate * 100), end='%   ')
-        #print('{}: {:>18,.2f}'.format('거래량', self.trade_volume), end='건   ')
-        print('{}: {!r:15s}'.format('한글코인명', self.name_kor))
-        #print('{}: {!r:15s}'.format('영문코인명', self.name_eng))
+        values = [[self.market_code, self.name_eng, self.price_now, self.rate, self.max_price,
+                   self.price_buy, self.min_price, self.profit, self.volume, self.name_kor]]
+        index = ['BUY', 'HOLD', 'SELL']
+        columns = ['MARKET_CODE', 'NAME_ENG', 'PRICE_NOW', 'RATE', 'MAX_PRICE',
+                   'PRICE_BUY', 'MIN_PRICE', 'PROFIT', 'VOLUME', 'NAME_KOR']
+        df = pd.DataFrame(values, index, columns)
+        print(df)
 
     def __del__(self):
         Coin.num_coins -= 1
@@ -69,13 +70,22 @@ PERCHASE_PRICE = 100000     # 종목당 실거래금액
 # 2) 보유 20개 종목정보
 
 if __name__ == "__main__":
-    upbit = pyupbit.Upbit(SECRET_KEY, ACCESS_KEY)
+    pd.set_option('display.max_rows', None)
+    pd.set_option('display.max_columns', None)
+    pd.set_option('display.width', None)
 
+    upbit = pyupbit.Upbit(SECRET_KEY, ACCESS_KEY)
     test_coin = Coin("KRW-ETC", "이더리움클래식", "EtheriumClassic")
 
+    TOP20 = []
+    MYCOINS = []
     while True:
-        print(f'Number of Coins = {Coin.num_coins}')
+        # 전일대비 상승률 TOP 20개 종목
+
+        # 보유중인 종목
         test_coin.update()
         test_coin.view()
-        time.sleep(0.07)
-        print(f'===============================================')
+        print(f'Number of Holding Coins = {Coin.num_coins}')
+        time.sleep(0.1)
+        os.system('cls')
+
