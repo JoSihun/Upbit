@@ -1,12 +1,11 @@
-import time
-import xlwings
+import numpy as np
+import pandas as pd
 
-# year = time.localtime().tm_year
-# month = time.localtime().tm_mon
-# day = time.localtime().tm_mday
 
-FILENAME = '업비트투자전략TEST.xlsm'
-if __name__ == '__main__':
-    dictA = [{'a':1, 'b':2, 'c':3}]
-    datas = [list(data.values()) for data in dictA]
-    print(datas[0])
+df = pd.DataFrame(np.array([[1, 2, 3], [4, 5, 6]]))
+print(df)
+# Use the `shape` property
+print(df.shape)
+
+# Or use the `len()` function with the `index` property
+print(len(df.index))
