@@ -12,6 +12,10 @@ import requests, pyupbit
 
 class Coin:
     num_coins = 0
+    market_dataframe = pd.DataFrame()       # Market 전체 데이터 프레임
+
+    # df.loc[(df['MARKET_CODE'] == 'KRW-EOS')]                      # Dataframe 단일조건
+    # df.loc[(df['MARKET_CODE'] == 'KRW-EOS') | (df['RATE'] > 0)]   # Dataframe 다중조건
 
     def __init__(self, market_code, name_kor, name_eng):
         self.market_code = market_code      # 종목코드
@@ -149,7 +153,7 @@ def get_prices_all():
             print(f'{get_time_str()} {url}')
 
             new_dataframe1 = pd.DataFrame([item])
-            new_dataframe2 = pd.DataFrame(response)[['trade_price', 'acc_trade_volume', 'signed_change_rate']]
+            new_dataframe2 = pd.DataFrame(response)[['trade_price', 'high_price', 'low_price', 'acc_trade_volume', 'signed_change_rate']]
             new_dataframe = pd.concat([new_dataframe1, new_dataframe2], axis=1, ignore_index=False)
 
             dataframe = pd.concat([dataframe, new_dataframe], axis=0, ignore_index=True)

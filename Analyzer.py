@@ -19,7 +19,8 @@ import requests
 import pyupbit, xlwings
 
 def get_time_str():
-    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
+    months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
+              'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
     month = months[time.localtime().tm_mon - 1]
 
     date = time.strftime(f'%a, %d {month} %Y')
