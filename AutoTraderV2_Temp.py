@@ -20,9 +20,13 @@ def get_time_header():
 
     return header
 
+
+
 PERCHASE_PRICE = 100000     # 종목당 실거래금액
 SECRET_KEY = 'PSrJSoS0xeQE3QlJ45pBxSSwVyZxXXRGafiBr6ZM'
 ACCESS_KEY = 'MLamU33sStiOwNGAlkxT3HYQVZfCJyaxIWakLiIm'
+# SECRET_KEY = 'iSCwJ7YAkU4sait93qhrMdYqlyi3FxzWAkP3Ct1q'
+# ACCESS_KEY = 'G0PsoHONIqtJbUXLeMSvbpbYv0bk0eOtxcqkWXGF'
 if __name__ == "__main__":
     pd.set_option('display.max_rows', None)
     pd.set_option('display.max_columns', None)
@@ -33,6 +37,8 @@ if __name__ == "__main__":
     urlMarket = 'https://api.upbit.com/v1/market/all'
     resMarket = requests.get(urlMarket).json()
 
+    columns = ['MARKET_CODE', 'NAME_ENG', 'PRICE_NOW', 'RATE', 'MAX_PRICE',
+               'PRICE_BUY', 'MIN_PRICE', 'PROFIT', 'VOLUME', 'NAME_KOR']
     dfMarket = pd.DataFrame(columns=['market', 'english_name', 'korean_name'])
 
     for market in resMarket:
