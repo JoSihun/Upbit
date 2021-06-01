@@ -43,7 +43,7 @@ def get_coin_information(market_code='KRW-BTC'):
     data['MIN_PRICE'] = response['low_price']
     data['MAX_PRICE'] = response['high_price']
     data['PRICE_NOW'] = response['trade_price']
-    data['RATE'] = response['signed_change_rate']
+    data['RATE'] = str(round(response['signed_change_rate'] * 100, 2)) + ' %'
     data['VOLUME'] = response['acc_trade_volume']
     return [data]
 
@@ -52,6 +52,7 @@ def get_coin_information(market_code='KRW-BTC'):
 PERCHASE_PRICE = 100000     # 종목당 실거래금액
 SECRET_KEY = 'PSrJSoS0xeQE3QlJ45pBxSSwVyZxXXRGafiBr6ZM'
 ACCESS_KEY = 'MLamU33sStiOwNGAlkxT3HYQVZfCJyaxIWakLiIm'
+upbit = pyupbit.Upbit(SECRET_KEY, ACCESS_KEY)
 # SECRET_KEY = 'iSCwJ7YAkU4sait93qhrMdYqlyi3FxzWAkP3Ct1q'
 # ACCESS_KEY = 'G0PsoHONIqtJbUXLeMSvbpbYv0bk0eOtxcqkWXGF'
 if __name__ == "__main__":
@@ -59,7 +60,6 @@ if __name__ == "__main__":
     pd.set_option('display.max_columns', None)
     pd.set_option('display.width', None)
     pd.set_option('display.unicode.east_asian_width', True)
-    upbit = pyupbit.Upbit(SECRET_KEY, ACCESS_KEY)
 
     # KRW MARKET BASE DATAFRAME 만들기
     columns = ['MARKET_CODE', 'NAME_ENG', 'PRICE_NOW', 'RATE', 'MAX_PRICE',
@@ -67,6 +67,12 @@ if __name__ == "__main__":
     dfMarket = pd.DataFrame(columns=columns)
     dfNames = pd.DataFrame(get_coin_names())
     dfMarket = pd.concat([dfMarket, dfNames], axis=0, ignore_index=True)
+
+    # 보유종목 DATAFRAME 만들기
+    dfHoldings = pd.DataFrame(columns=columns)
+
+    # 후보종목 DATAFRAME 만들기
+    dfCandidates = pd.DataFrame(columns=columns)
 
     # RealTime KRW MARKET Information 갱신, While문 추가할 것
     while True:
@@ -77,7 +83,7 @@ if __name__ == "__main__":
             dfMarket.set_index('MARKET_CODE', inplace=True)
             dfMarket.update(dfCoin)
 
-            dfMarket.reset_index(drop=False, inplace=True)  # drop: 기존 인덱스 삭제여부, inplace: 새 변수에 넣을 필요 없음
+            dfMarket.reset_index(drop=False, inplace=True)  # drop: 기존 인덱스컬럼 삭제여부, inplace: 새 변수에 넣을 필요 없음
             dfMarket = dfMarket.sort_values(by=['RATE'], ascending=False)  # 내림차순 정렬
             time.sleep(0.07)
 
