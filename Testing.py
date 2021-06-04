@@ -43,7 +43,6 @@ def get_holdings():
         market_code = balance['unit_currency'] + '-' + balance['currency']
         if market_code == 'KRW-VTHO': continue
 
-
         data['MARKET_CODE'] = market_code
         data['BUY_PRICE'] = balance['avg_buy_price']
 
@@ -68,6 +67,7 @@ def get_holdings():
 
         time.sleep(0.07)
     print(dfHoldings)
+    print(dfHoldings.to_dict('records'))
 
 get_holdings()
 
