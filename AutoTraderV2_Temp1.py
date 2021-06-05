@@ -90,7 +90,7 @@ def get_holdings():
 PERCHASE_PRICE = 100000     # 종목당 실거래금액
 SECRET_KEY = 'PSrJSoS0xeQE3QlJ45pBxSSwVyZxXXRGafiBr6ZM'
 ACCESS_KEY = 'MLamU33sStiOwNGAlkxT3HYQVZfCJyaxIWakLiIm'
-upbit = pyupbit.Upbit(ACCESS_KEY, SECRET_KEY)
+upbit = pyupbit.Upbit(SECRET_KEY, ACCESS_KEY)
 # SECRET_KEY = 'iSCwJ7YAkU4sait93qhrMdYqlyi3FxzWAkP3Ct1q'
 # ACCESS_KEY = 'G0PsoHONIqtJbUXLeMSvbpbYv0bk0eOtxcqkWXGF'
 if __name__ == "__main__":
@@ -102,7 +102,6 @@ if __name__ == "__main__":
     # KRW MARKET BASE DATAFRAME 만들기
     columns = ['MARKET_CODE', 'NAME_ENG', 'PRICE_NOW', 'RATE', 'MAX_PRICE',
                'BUY_PRICE', 'MIN_PRICE', 'PROFIT', 'VOLUME', 'NAME_KOR']
-
     dfMarket = pd.DataFrame(columns=columns)
     dfNames = pd.DataFrame(get_coin_names())
     dfMarket = pd.concat([dfMarket, dfNames], axis=0, ignore_index=True)
@@ -118,20 +117,16 @@ if __name__ == "__main__":
         start_time = time.time()
         for idx, row in dfMarket.iterrows():
             dfCoin = pd.DataFrame(get_coin_information(row['MARKET_CODE']))
-            dfCoin.set_index('MARKET_CODE', drop=True, inplace=True)
-            dfMarket.set_index('MARKET_CODE', drop=True, inplace=True)
+            dfCoin.set_index('MARKET_CODE', inplace=True)
+            dfMarket.set_index('MARKET_CODE', inplace=True)
             dfMarket.update(dfCoin)
 
             dfMarket.reset_index(drop=False, inplace=True)  # drop: 기존 인덱스컬럼 삭제여부, inplace: 새 변수에 넣을 필요 없음
             dfMarket = dfMarket.sort_values(by=['RATE'], ascending=False)  # 내림차순 정렬
-            # time.sleep(0.07)
-
-            # My Holdings 불러오기
-            dfHoldings = get_holdings()
+            time.sleep(0.07)
 
             os.system('cls')
             print(dfMarket[:20])
-            print(dfHoldings)
             print(f'경과시간: {time.time() - start_time}')
 
 

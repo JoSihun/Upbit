@@ -9,6 +9,7 @@ import numpy as np
 import pandas as pd
 import requests, pyupbit
 
+
 def get_time_header():
     months = ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun',
               'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec']
@@ -19,6 +20,7 @@ def get_time_header():
     header = f'[{date}, {now} GMT{timezone}]'
 
     return header
+
 
 def get_coin_names():
     url = 'https://api.upbit.com/v1/market/all'
@@ -34,18 +36,19 @@ def get_coin_names():
             markets.append(data)
     return markets
 
+
 def get_coin_information(market_code='KRW-BTC'):
     url = 'https://api.upbit.com/v1/ticker?markets=' + market_code
     response = requests.get(url).json()[0]
-    data = dict()
 
+    data = dict()
     data['MARKET_CODE'] = response['market']
     data['MIN_PRICE'] = response['low_price']
     data['MAX_PRICE'] = response['high_price']
     data['PRICE_NOW'] = response['trade_price']
     data['RATE'] = str(round(response['signed_change_rate'] * 100, 2)) + ' %'
     data['VOLUME'] = response['acc_trade_volume']
-    return [data]
+    return data
 
 
 # 일단은 DataFrame 형태로 return, 추후 리스트던 데이터프레임이던 획일화 진행해야함
@@ -87,7 +90,7 @@ def get_holdings():
     return dfHoldings
 
 
-PERCHASE_PRICE = 100000     # 종목당 실거래금액
+PERCHASE_PRICE = 100000  # 종목당 실거래금액
 SECRET_KEY = 'PSrJSoS0xeQE3QlJ45pBxSSwVyZxXXRGafiBr6ZM'
 ACCESS_KEY = 'MLamU33sStiOwNGAlkxT3HYQVZfCJyaxIWakLiIm'
 upbit = pyupbit.Upbit(ACCESS_KEY, SECRET_KEY)
@@ -99,40 +102,22 @@ if __name__ == "__main__":
     pd.set_option('display.width', None)
     pd.set_option('display.unicode.east_asian_width', True)
 
+    print(upbit.get_balances())
+    exit(0)
+
     # KRW MARKET BASE DATAFRAME 만들기
     columns = ['MARKET_CODE', 'NAME_ENG', 'PRICE_NOW', 'RATE', 'MAX_PRICE',
                'BUY_PRICE', 'MIN_PRICE', 'PROFIT', 'VOLUME', 'NAME_KOR']
+    markets = get_coin_names()
+    for market in markets:
+        coinInformation = get_coin_information(market['MARKET_CODE'])
+        market.update(coinInformation)
+        time.sleep(0.07)
+    dfMarket = pd.DataFrame(columns=columns, data=markets)
 
-    dfMarket = pd.DataFrame(columns=columns)
-    dfNames = pd.DataFrame(get_coin_names())
-    dfMarket = pd.concat([dfMarket, dfNames], axis=0, ignore_index=True)
 
-    # 보유종목 DATAFRAME 만들기
-    dfHoldings = pd.DataFrame(columns=columns)
 
-    # 후보종목 DATAFRAME 만들기
-    dfCandidates = pd.DataFrame(columns=columns)
 
-    # RealTime KRW MARKET Information 갱신, While문 추가할 것
-    while True:
-        start_time = time.time()
-        for idx, row in dfMarket.iterrows():
-            dfCoin = pd.DataFrame(get_coin_information(row['MARKET_CODE']))
-            dfCoin.set_index('MARKET_CODE', drop=True, inplace=True)
-            dfMarket.set_index('MARKET_CODE', drop=True, inplace=True)
-            dfMarket.update(dfCoin)
-
-            dfMarket.reset_index(drop=False, inplace=True)  # drop: 기존 인덱스컬럼 삭제여부, inplace: 새 변수에 넣을 필요 없음
-            dfMarket = dfMarket.sort_values(by=['RATE'], ascending=False)  # 내림차순 정렬
-            # time.sleep(0.07)
-
-            # My Holdings 불러오기
-            dfHoldings = get_holdings()
-
-            os.system('cls')
-            print(dfMarket[:20])
-            print(dfHoldings)
-            print(f'경과시간: {time.time() - start_time}')
 
 
 
