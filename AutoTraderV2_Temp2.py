@@ -43,7 +43,8 @@ def get_coin_information(market_code='KRW-BTC'):
     data['MIN_PRICE'] = response['low_price']
     data['MAX_PRICE'] = response['high_price']
     data['PRICE_NOW'] = response['trade_price']
-    data['RATE'] = str(round(response['signed_change_rate'] * 100, 2)) + ' %'
+    #data['RATE'] = str(round(response['signed_change_rate'] * 100, 2)) + ' %'
+    data['RATE'] = round(response['signed_change_rate'] * 100, 2)
     data['VOLUME'] = response['acc_trade_volume']
     return [data]
 
@@ -67,10 +68,11 @@ def get_holdings():
 
         dfCoin1 = pd.DataFrame(get_coin_information(market_code))
         profit = round(float(dfCoin1['PRICE_NOW'].values[0]) / float(balance['avg_buy_price']) * 100 - 100, 2)
-        profit = str(profit) + ' %'
+        #profit = str(profit) + ' %'
         dfCoin2 = pd.DataFrame([{'MARKET_CODE': market_code,
                                  'BUY_PRICE': balance['avg_buy_price'],
-                                 'PROFIT': profit}])
+                                 'PROFIT': profit,
+                                 'VOLUME': balance['balance']}])
 
         dfCoin1.set_index('MARKET_CODE', inplace=True)
         dfCoin2.set_index('MARKET_CODE', inplace=True)
@@ -116,23 +118,35 @@ if __name__ == "__main__":
     # RealTime KRW MARKET Information 갱신, While문 추가할 것
     while True:
         start_time = time.time()
+        # My Holdings 불러오기
+        dfHoldings = get_holdings()
+        dfNames.set_index('MARKET_CODE', drop=True, inplace=True)
+        dfHoldings.set_index('MARKET_CODE', drop=True, inplace=True)
+        dfHoldings.update(dfNames)
+        dfHoldings = dfHoldings.sort_values(by=['PROFIT'], ascending=False)
+        dfHoldings.reset_index(drop=False, inplace=True)
+        dfNames.reset_index(drop=False, inplace=True)
+
         for idx, row in dfMarket.iterrows():
             dfCoin = pd.DataFrame(get_coin_information(row['MARKET_CODE']))
             dfCoin.set_index('MARKET_CODE', drop=True, inplace=True)
             dfMarket.set_index('MARKET_CODE', drop=True, inplace=True)
             dfMarket.update(dfCoin)
 
-            dfMarket.reset_index(drop=False, inplace=True)  # drop: 기존 인덱스컬럼 삭제여부, inplace: 새 변수에 넣을 필요 없음
             dfMarket = dfMarket.sort_values(by=['RATE'], ascending=False)  # 내림차순 정렬
-            # time.sleep(0.07)
+            dfMarket.reset_index(drop=False, inplace=True)  # drop: 기존 인덱스컬럼 삭제여부, inplace: 새 변수에 넣을 필요 없음
 
-            # My Holdings 불러오기
-            dfHoldings = get_holdings()
-
+            time.sleep(0.07)
             os.system('cls')
-            print(dfMarket[:20])
-            print(dfHoldings)
+            print(dfMarket[:20], end='\n\n')
+            print(dfHoldings, end='\n\n')
+            print(dfCandidates[:20])
             print(f'경과시간: {time.time() - start_time}')
+        
+        # 조건비교하여 매수/매도 진행
+        dfCandidates = dfMarket[dfMarket['PRICE_NOW'] / dfMarket['MAX_PRICE'] * 100 < 95]   # 매도조건
+        dfCandidates = dfMarket[dfMarket['PRICE_NOW'] / dfMarket['MIN_PRICE'] * 100 > 105]  # 매수조건
+        
 
 
 

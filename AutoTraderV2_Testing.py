@@ -102,7 +102,9 @@ if __name__ == "__main__":
     pd.set_option('display.width', None)
     pd.set_option('display.unicode.east_asian_width', True)
 
-    print(upbit.get_balances())
+    for balance in upbit.get_balances():
+        print(balance)
+
     exit(0)
 
     # KRW MARKET BASE DATAFRAME 만들기
