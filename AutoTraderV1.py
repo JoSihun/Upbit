@@ -157,7 +157,7 @@ upbit = pyupbit.Upbit(access_key, secret_key)
 
 
 #PERCHASE_PRICE = 10000      # TEST용 금액
-PERCHASE_PRICE = 150000    # 실제거래금액
+PERCHASE_PRICE = 100000    # 실제거래금액
 if __name__ == "__main__":
     option = input('옵션입력(매수: buy, 매도: sell): ')
     prices = get_prices(get_tickers('KRW'))
