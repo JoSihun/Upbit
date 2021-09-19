@@ -1,97 +1,84 @@
 # Upbit Auto Trader & Analysis
 
 Upbit Auto Trader and Analysis for Python Upbit API 
-
-- GAN: [[Pytorch](https://github.com/taeoh-kim/GANin50lines)][[Tensorflow](https://github.com/HyeongminLEE/GANin50lines)]
-- DCGAN: [[Pytorch](https://github.com/taeoh-kim/Pytorch_DCGAN)][[Tensorflow](https://github.com/HyeongminLEE/Tensorflow_DCGAN)]
-- InfoGAN: [[Pytorch](https://github.com/taeoh-kim/Pytorch_InfoGAN)][Tensorflow]
-- Pix2Pix: [[Pytorch](https://github.com/taeoh-kim/Pytorch_Pix2Pix)][[Tensorflow](https://github.com/HyeongminLEE/Tensorflow_Pix2Pix)]
-- DiscoGAN: [[Pytorch](https://github.com/taeoh-kim/Pytorch_DiscoGAN)][[Tensorflow](https://github.com/HyeongminLEE/Tensorflow_DiscoGAN)]
+- Upbit API: [[Pyubit](https://github.com/sharebook-kr/pyupbit)]
+- Fbprophet: 
 
 ## 1. Environments
 
-- Ubuntu 16.04
-- Python 3.6 (Anaconda)
-- Pytorch 0.2.0
-- Torchvision 0.1.9
-- lmdb (pip install lmdb): for LSUN Dataset
+- Window 10
+- Python 3.7.6
+- python 3.8.5 (Anaconda)
+- pyupbit
+- fbprophet
 
-## 2. Networks and Parameters
+## 2. Main Configuration
 
-### 2.1 Hyper-Parameters
+### 2. 1 Analyzer
+Analyzer will record coin price data as excel file.
 
-- Image Size = 64x64 (Both in CelebA and LSUN-Bedroom)
-- Batch Size = 128 (~32 is OK)
-- Learning Rate = 0.0002
-- Adam_beta1 = 0.5
-- z_dim = 100
-- Epoch = 5 in CelebA is Enough, 1 in LSUN is Enough. Sometimes it can be diverge.
+### 2. 2 AutoTrader
+AutoTrader will trading Top20 rate of increase.
+- You should edit Upbit API keys in `AutoTraderV1.py` which are `access_key` & `secret_key`.
+- This will be update as soon as possible.
 
-### 2.2 Generator Networks (network.py)
+### 2. 3 AIAutoTrader
+AIAutoTrader will trading 20 stocks that will give you the best returns.
+- You should edit Upbit API keys in `AIAutoTraderV1.py` which are `access_key` & `secret_key`.
+- This is unusable now cause it's not completed.
+- This will be update as soon as possible.
 
-<p align="center"><img width="100%" src="images/DCGAN_Generator.PNG" /></p>
+This is based on next video:
+- [Reference] : https://www.youtube.com/watch?v=Teju_e9TI3s&ab_channel=%EC%A1%B0%EC%BD%94%EB%94%A9JoCoding
 
-### 2.3 Discriminator Networks (network.py)
+## 3. Run
 
-<p align="center"><img width="100%" src="images/DCGAN_Discriminator.PNG" /></p>
+## 4. Use
 
-## 3. Run (Train)
-
-You can modify hyper-parameter. Look at the parsing part of the code.
-
-### 3. 1 CelebA DB (Cropped Face, 156253 Samples)
-
-Data Download
-
+### 4. 1 Analyzer.py
 ```bash
-chmod +x celebdownload.sh
-./celebdownload.sh
+python Analyzer.py
 ```
+- `Analyzer.py` will analyze the data of coin price at the time of execution.
+- Analyzed result will be saved in `root` directory as `.xlsm` file.
 
-Train
-
-```bash
-python dcgan.py
+### 4. 2 AutoTraderV1.py
 ```
-
-### 3. 2 LSUN-Bedroom DB (3033042 Samples)
-
-Data Download
-
-```bash
-python lsun.py -c bedroom
+python AutoTraderV1.py
 ```
+AutoTrader will trading Top20 rate of increase.
+- You should edit Upbit API keys in `AutoTraderV1.py` which are `access_key` & `secret_key`.
+- This will be update as soon as possible.
 
-After download, unzip.
-
-Train
-
-```bash
-python dcgan.py --db 'lsun'
+### 4. 3 AIAutoTraderV1.py
 ```
-
-## 4. Test
-
-After finish training, saved model will be in the `./models` directory.
-
-```bash
-$ python dcgan_test.py 
+python AIAutoTraderV1.py
 ```
-
-Parameter
-
-- `image_size` & `z_dim` must be same with training
-- `sample_size`: Test sample size
-- `num_epochs`: Which model will be used for test
-
-Test results will be saved in `./test_result`
+AIAutoTrader will trading 20 stocks that will give you the best returns.
+- You should edit Upbit API keys in `AIAutoTraderV1.py` which are `access_key` & `secret_key`.
+- This is unusable now cause it's not completed.
+- This will be update as soon as possible.
 
 ## 5. Results
 
-DCGAN with CelebA (5 Epochs)
+### 5. 1 Daily Analysis
 
-<p align="center"><img width="70%" src="results/CelebA.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_001.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_002.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_003.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_004.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_005.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_006.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_007.png" /></p>
+<p align="center"><img width="100%" src="document/images/Daily_Analysis_008.png" /></p>
 
-DCGAN with LSUN (1 Epochs)
+### 5. 2 Monthly Analysis
 
-<p align="center"><img width="70%" src="results/LSUN_bed.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_001.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_002.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_003.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_004.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_005.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_006.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_007.png" /></p>
+<p align="center"><img width="100%" src="document/images/Monthly_Analysis_008.png" /></p>
