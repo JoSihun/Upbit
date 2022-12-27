@@ -267,6 +267,7 @@ def macro_mouse_click_by_image(image_path):
     btn_position = pyautogui.center(btn_location)
     pyautogui.moveTo(btn_position)
     pyautogui.click()
+    pyautogui.hotkey('enter')
 
 def macro_mouse_click_btn_paste():
     win = pyautogui.getWindowsWithTitle(FILENAME)[0]
