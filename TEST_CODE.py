@@ -1,7 +1,7 @@
-import os
+def inner():
+    print('func')
 
-from Analyzer_Excel import *
+def test(func):
+    func()
 
-
-
-print(os.listdir(DATA_PATH))
+test(inner)
