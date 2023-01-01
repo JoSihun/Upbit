@@ -58,6 +58,7 @@ def init_worksheet(file_path):
     worksheet.range('G1').value = time.strftime('%Y-%m-%d')  # 날짜 변경
 
 
+# 여기에 전월 데이터 삽입 조건 추가해야 할 듯
 def load_workbook():
     file_name = get_file_name()
     file_path = get_file_path()
