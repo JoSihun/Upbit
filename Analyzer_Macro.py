@@ -1,3 +1,5 @@
+import time
+
 import pyautogui, datetime
 from PIL import ImageGrab
 from functools import partial
@@ -36,5 +38,7 @@ def macro_paste_btn_click():
         macro_mouse_click_by_image(BTN_PASTE_PATH3)
     elif datetime.datetime.now().hour == 0:
         pyautogui.hotkey('ctrl', 'pageup')
+        time.sleep(1)
         macro_mouse_click_by_image(BTN_PASTE_PATH4)
+        time.sleep(1)
         pyautogui.hotkey('ctrl', 'pagedown')

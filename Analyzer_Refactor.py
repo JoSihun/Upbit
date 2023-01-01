@@ -1,6 +1,7 @@
 from Analyzer_Excel import *
 from Analyzer_Macro import *
 from Analyzer_Print import *
+from Analyzer_UpbitApi import *
 
 import os, shutil, time
 import datetime, schedule
@@ -18,14 +19,14 @@ FILE_NAME = f'Upbit투자분석 yyyy년 mm월.xlsm'
 
 
 def init_routine():
-    print_open_excel_message()
-    workbook = open_excel_file()
+    workbook = load_workbook()
     switch_window_activate(get_file_name())
     return workbook
 
 
 def main_routine(workbook):
-    pass
+    tickers = get_tickers()
+    update_workbook(workbook, tickers)
 
 
 def exit_routine():
@@ -33,10 +34,20 @@ def exit_routine():
 
 
 def run():
+    start = time.time()
     workbook = init_routine()
     main_routine(workbook)
     exit_routine()
+    end = time.time()
+    print(f'\n{get_time_header()} Analyze Complete! 처리시간: {end-start:.3f}sec')
 
 
 if __name__ == '__main__':
-    run()
+    # run()
+    schedule.every().day.at("14:00").do(run)
+    schedule.every().day.at("19:00").do(run)
+    schedule.every().day.at("21:00").do(run)
+    schedule.every().day.at("00:00").do(run)
+    while True:
+        schedule.run_pending()
+        time.sleep(1)
